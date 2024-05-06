@@ -43,6 +43,10 @@ def format_name_to_zip(fileName):
         fileName += '.zip' #replace with proper file format
     return fileName
 
+def format_name_to_txt(fileName):
+    fileName = fileName[0:-4] #cut off file format from string
+    fileName += '.zip' #replace with proper file format
+    return fileName
 
 
 def build_freq_table(file,text):
@@ -81,6 +85,24 @@ def display_encode_info(freq_table, code_table):
         print(key, "\t", freq_table[key], "\t\t", huff_val) #newline character makes print loop go to a newline for it, so it is a blank symbol enxt to 58 and its huffman code
 
 
+def unzip(zipFileName, huffman, zipSize):
+    t = decodetree(huffman)
+    file = open(zipFileName)
+    data = ''
+    for x in file:
+        x.rstrip('\n') #take newline char off
+        data += x
+    file.close() #close file object
+    a = bitarray(data)
+    a.decode(t) #decode compressed data using huffman dict
+    text = ''.join(a.iterdecode(t)) #iterate through the bitarray and 
+    fileSize = text.__len__()
+    fileName = format_name_to_txt(zipFileName)
+    file = open('King(1).txt', 'w')
+    file.write(text)
+    file.close()
+    return fileSize
+
 
 def huffman_driver():
     #fileName = input('Enter the name of the file to zip (and then unzip)') #example : file.txt
@@ -94,8 +116,10 @@ def huffman_driver():
     code_table = build_code_table(huffman_tree) #create code table (dictionary) from huffman tree
     display_encode_info(freq_table, code_table)
     zip_info, zip_name = zip(text, fileName, code_table)
-    print('King.txt: ' + str(text.__len__()))
-    print(zip_name + ': ' + str(zip_info['King.zip'].nbytes))
+    print('Size of King.txt: ' + str(text.__len__()))
+    print('Size of ' + zip_name + ': ' + str(zip_info['King.zip'].nbytes))
+    file_size = unzip(zip_name, code_table, '101')
+    print('Size of unzipped ' + fileName + ': ' + str(file_size))
 
 
 huffman_driver()
